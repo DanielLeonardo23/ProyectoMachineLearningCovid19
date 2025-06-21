@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Predictivo para la Detección Temprana de COVID-19</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .main-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            padding: 30px;
+            max-width: 1200px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            color: #e74c3c;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .form-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        
+        .result-section {
+            display: none;
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .risk-assessment-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .risk-high {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+        
+        .risk-medium {
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8c00 100%);
+        }
+        
+        .risk-low {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+        }
+        
+        .probability-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .risk-level-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin: 10px 0;
+        }
+        
+        .risk-high-badge {
+            background: #ff4444;
+            color: white;
+        }
+        
+        .risk-medium-badge {
+            background: #ffaa00;
+            color: white;
+        }
+        
+        .risk-low-badge {
+            background: #44aa44;
+            color: white;
+        }
+        
+        .explanation-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .recommendations-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .recommendations-list li {
+            background: #e8f5e8;
+            margin: 8px 0;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .clinical-alert {
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        
+        .clinical-alert.high {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            border-left: 4px solid #ff0000;
+        }
+        
+        .clinical-alert.medium {
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8c00 100%);
+            color: white;
+            border-left: 4px solid #ff8800;
+        }
+        
+        .clinical-alert.low {
+            background: linear-gradient(135deg, #4ecdc4 0%, #44a08d 100%);
+            color: white;
+            border-left: 4px solid #00aa00;
+        }
+        
+        .clinical-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        .clinical-summary h5 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .clinical-summary .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 8px 0;
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .clinical-summary .summary-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .clinical-summary .summary-value {
+            color: #667eea;
+            font-weight: 500;
+        }
+        
+        .warning-signs {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .warning-signs h6 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        
+        .warning-signs ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        
+        .warning-signs li {
+            color: #856404;
+            margin: 5px 0;
+        }
+        
+        .detailed-explanation {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .detailed-explanation h5 {
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        
+        .detailed-explanation .explanation-item {
+            margin: 12px 0;
+        }
+        
+        .detailed-explanation .explanation-label {
+            font-weight: 600;
+            color: #1565c0;
+            margin-bottom: 5px;
+        }
+        
+        .detailed-explanation .explanation-text {
+            color: #424242;
+            line-height: 1.6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: #fff;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .metric-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .risk-probabilities {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        
+        .risk-probability-item {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8f9fa;
+        }
+        
+        .risk-probability-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .risk-probability-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+        }
+        
+        .focus-badge {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="main-container">
+            <div class="header">
+                <h1><i class="fas fa-shield-virus"></i> Sistema Predictivo COVID-19</h1>
+                <div class="subtitle">Detección Temprana para Prevenir Hospitalizaciones</div>
+                <p>Sistema de clasificación de riesgo en 3 niveles basado en aprendizaje supervisado</p>
+                <div class="focus-badge">
+                    <i class="fas fa-heartbeat"></i> Prevención Temprana - Clasificación de Riesgo de Hospitalización
+                </div>
+            </div>
+
+            <!-- Sección de Control del Modelo -->
+            <div class="form-section">
+                <h3><i class="fas fa-cogs"></i> Control del Modelo</h3>
+                <div class="row">
+                    <div class="col-md-6">
+                        <button id="trainModelBtn" class="btn btn-warning btn-lg w-100 mb-3">
+                            <i class="fas fa-brain"></i> Entrenar Modelo
+                        </button>
+                    </div>
+                    <div class="col-md-6">
+                        <button id="loadModelBtn" class="btn btn-success btn-lg w-100 mb-3">
+                            <i class="fas fa-download"></i> Cargar Modelo
+                        </button>
+                    </div>
+                </div>
+                <div id="modelStatus" class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Estado del modelo: <span id="modelStatusText">No entrenado</span>
+                </div>
+            </div>
+
+            <!-- Formulario de Datos del Paciente -->
+            <div class="form-section">
+                <h3><i class="fas fa-user-md"></i> Datos del Paciente</h3>
+                <form id="predictionForm">
+                    <div class="row">
+                        <!-- Información Demográfica -->
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-user"></i> Información Demográfica</h5>
+                            <div class="mb-3">
+                                <label for="age" class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="age" name="age" min="0" max="120" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sex" class="form-label">Sexo</label>
+                                <select class="form-select" id="sex" name="sex" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Masculino</option>
+                                    <option value="2">Femenino</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Síntomas -->
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-thermometer-half"></i> Síntomas</h5>
+                            <div class="mb-3">
+                                <label for="fever" class="form-label">Fiebre</label>
+                                <select class="form-select" id="fever" name="fever" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cough" class="form-label">Tos</label>
+                                <select class="form-select" id="cough" name="cough" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fatigue" class="form-label">Fatiga</label>
+                                <select class="form-select" id="fatigue" name="fatigue" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="difficulty_breathing" class="form-label">Dificultad para Respirar</label>
+                                <select class="form-select" id="difficulty_breathing" name="difficulty_breathing" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Factores de Riesgo -->
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-exclamation-triangle"></i> Factores de Riesgo</h5>
+                            <div class="mb-3">
+                                <label for="diabetes" class="form-label">Diabetes</label>
+                                <select class="form-select" id="diabetes" name="diabetes" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="hypertension" class="form-label">Hipertensión</label>
+                                <select class="form-select" id="hypertension" name="hypertension" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="obesity" class="form-label">Obesidad</label>
+                                <select class="form-select" id="obesity" name="obesity" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cardiovascular" class="form-label">Enfermedad Cardiovascular</label>
+                                <select class="form-select" id="cardiovascular" name="cardiovascular" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Síntomas Adicionales -->
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-plus-circle"></i> Síntomas Adicionales</h5>
+                            <div class="mb-3">
+                                <label for="headache" class="form-label">Dolor de Cabeza</label>
+                                <select class="form-select" id="headache" name="headache" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="sore_throat" class="form-label">Dolor de Garganta</label>
+                                <select class="form-select" id="sore_throat" name="sore_throat" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="chest_pain" class="form-label">Dolor en el Pecho</label>
+                                <select class="form-select" id="chest_pain" name="chest_pain" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="loss_taste_smell" class="form-label">Pérdida de Gusto/Olfato</label>
+                                <select class="form-select" id="loss_taste_smell" name="loss_taste_smell" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Factores de Riesgo Adicionales -->
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-plus-triangle"></i> Factores de Riesgo Adicionales</h5>
+                            <div class="mb-3">
+                                <label for="copd" class="form-label">EPOC</label>
+                                <select class="form-select" id="copd" name="copd" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="asthma" class="form-label">Asma</label>
+                                <select class="form-select" id="asthma" name="asthma" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="renal_chronic" class="form-label">Enfermedad Renal Crónica</label>
+                                <select class="form-select" id="renal_chronic" name="renal_chronic" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="inmsupr" class="form-label">Inmunosupresión</label>
+                                <select class="form-select" id="inmsupr" name="inmsupr" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Otros Factores -->
+                        <div class="col-md-6">
+                            <h5><i class="fas fa-info-circle"></i> Otros Factores</h5>
+                            <div class="mb-3">
+                                <label for="pregnancy" class="form-label">Embarazo</label>
+                                <select class="form-select" id="pregnancy" name="pregnancy" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tobacco" class="form-label">Tabaquismo</label>
+                                <select class="form-select" id="tobacco" name="tobacco" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="other_disease" class="form-label">Otras Enfermedades</label>
+                                <select class="form-select" id="other_disease" name="other_disease" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="contact_other_covid" class="form-label">Contacto con COVID-19</label>
+                                <select class="form-select" id="contact_other_covid" name="contact_other_covid" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="1">Sí</option>
+                                    <option value="0">No</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-search"></i> Evaluar Riesgo de Hospitalización
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="mt-3">Procesando evaluación de riesgo...</p>
+            </div>
+
+            <!-- Resultados -->
+            <div id="resultSection" class="result-section">
+                <h3><i class="fas fa-chart-line"></i> Evaluación de Riesgo</h3>
+                
+                <!-- Tarjeta de Evaluación de Riesgo -->
+                <div id="riskAssessmentCard" class="risk-assessment-card">
+                    <h4><i class="fas fa-shield-alt"></i> Nivel de Riesgo</h4>
+                    <div id="riskLevelBadge" class="risk-level-badge"></div>
+                    <div class="probability-circle">
+                        <span id="probabilityValue">0%</span>
+                    </div>
+                    <p id="riskRecommendation" class="mb-0"></p>
+                </div>
+
+                <!-- Probabilidades por Nivel -->
+                <div class="risk-probabilities">
+                    <div class="risk-probability-item">
+                        <div id="highRiskProb" class="risk-probability-value">0%</div>
+                        <div class="risk-probability-label">Alto Riesgo</div>
+                    </div>
+                    <div class="risk-probability-item">
+                        <div id="mediumRiskProb" class="risk-probability-value">0%</div>
+                        <div class="risk-probability-label">Riesgo Medio</div>
+                    </div>
+                    <div class="risk-probability-item">
+                        <div id="lowRiskProb" class="risk-probability-value">0%</div>
+                        <div class="risk-probability-label">Bajo Riesgo</div>
+                    </div>
+                </div>
+
+                <!-- Explicación -->
+                <div class="explanation-box">
+                    <h5><i class="fas fa-lightbulb"></i> Explicación del Resultado</h5>
+                    <div id="explanationText"></div>
+                </div>
+
+                <!-- Recomendaciones -->
+                <div class="explanation-box">
+                    <h5><i class="fas fa-clipboard-list"></i> Recomendaciones</h5>
+                    <ul id="recommendationsList" class="recommendations-list"></ul>
+                </div>
+
+                <!-- Factores de Riesgo Identificados -->
+                <div class="explanation-box">
+                    <h5><i class="fas fa-exclamation-triangle"></i> Factores de Riesgo Identificados</h5>
+                    <ul id="riskFactorsList" class="recommendations-list"></ul>
+                </div>
+
+                <!-- Próximos Pasos -->
+                <div class="explanation-box">
+                    <h5><i class="fas fa-route"></i> Próximos Pasos</h5>
+                    <ul id="nextStepsList" class="recommendations-list"></ul>
+                </div>
+
+                <!-- Alerta Clínica -->
+                <div id="clinicalAlertSection" class="clinical-alert" style="display: none;">
+                    <h5><i class="fas fa-bell"></i> <span id="alertTitle">Alerta Clínica</span></h5>
+                    <p id="alertMessage"></p>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-exclamation-circle"></i> Acciones Inmediatas</h6>
+                            <ul id="immediateActionsList"></ul>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="warning-signs">
+                                <h6><i class="fas fa-warning"></i> Signos de Alerta</h6>
+                                <ul id="warningSignsList"></ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <strong>Notas Clínicas:</strong>
+                        <p id="clinicalNotes"></p>
+                    </div>
+                </div>
+
+                <!-- Resumen Clínico -->
+                <div id="clinicalSummarySection" class="clinical-summary" style="display: none;">
+                    <h5><i class="fas fa-stethoscope"></i> Resumen Clínico</h5>
+                    <div class="summary-item">
+                        <span class="summary-label">Mensaje Principal:</span>
+                        <span class="summary-value" id="keyMessage"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Nivel de Prioridad:</span>
+                        <span class="summary-value" id="priorityLevel"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Tiempo de Acción:</span>
+                        <span class="summary-value" id="timeToAction"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Urgencia Clínica:</span>
+                        <span class="summary-value" id="clinicalUrgency"></span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Evolución Esperada:</span>
+                        <span class="summary-value" id="expectedCourse"></span>
+                    </div>
+                </div>
+
+                <!-- Explicación Clínica Detallada -->
+                <div id="detailedExplanationSection" class="detailed-explanation" style="display: none;">
+                    <h5><i class="fas fa-microscope"></i> Análisis Clínico Detallado</h5>
+                    
+                    <div class="explanation-item">
+                        <div class="explanation-label">Interpretación del Riesgo:</div>
+                        <div class="explanation-text" id="riskInterpretation"></div>
+                    </div>
+                    
+                    <div class="explanation-item">
+                        <div class="explanation-label">Razonamiento Clínico:</div>
+                        <div class="explanation-text" id="clinicalReasoning"></div>
+                    </div>
+                    
+                    <div class="explanation-item">
+                        <div class="explanation-label">Pronóstico:</div>
+                        <div class="explanation-text" id="prognosis"></div>
+                    </div>
+                    
+                    <div class="explanation-item">
+                        <div class="explanation-label">Plan de Monitoreo:</div>
+                        <div class="explanation-text" id="monitoringPlan"></div>
+                    </div>
+                    
+                    <div class="explanation-item">
+                        <div class="explanation-label">Estrategia de Prevención:</div>
+                        <div class="explanation-text" id="preventionStrategy"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Variables globales
+        let modelTrained = false;
+        let modelMetrics = {};
+
+        // Función para mostrar/ocultar loading
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+
+        // Función para actualizar estado del modelo
+        function updateModelStatus() {
+            fetch('/model_status')
+                .then(response => response.json())
+                .then(data => {
+                    modelTrained = data.trained;
+                    modelMetrics = data.metrics;
+                    document.getElementById('modelStatusText').textContent = 
+                        modelTrained ? `Entrenado (${data.model_name})` : 'No entrenado';
+                    document.getElementById('modelStatus').className = 
+                        modelTrained ? 'alert alert-success' : 'alert alert-warning';
+                })
+                .catch(error => {
+                    console.error('Error obteniendo estado del modelo:', error);
+                });
+        }
+
+        // Entrenar modelo
+        document.getElementById('trainModelBtn').addEventListener('click', function() {
+            showLoading(true);
+            fetch('/train_model', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                if (data.success) {
+                    alert('Modelo entrenado exitosamente para clasificación de riesgo en 3 niveles');
+                    updateModelStatus();
+                } else {
+                    alert('Error en el entrenamiento: ' + data.message);
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('Error en el entrenamiento');
+            });
+        });
+
+        // Cargar modelo
+        document.getElementById('loadModelBtn').addEventListener('click', function() {
+            showLoading(true);
+            fetch('/load_model', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                if (data.success) {
+                    alert('Modelo cargado exitosamente');
+                    updateModelStatus();
+                } else {
+                    alert('Error cargando modelo: ' + data.message);
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('Error cargando modelo');
+            });
+        });
+
+        // Realizar predicción
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!modelTrained) {
+                alert('El modelo no está entrenado. Por favor, entrena o carga el modelo primero.');
+                return;
+            }
+
+            showLoading(true);
+            
+            const formData = new FormData(this);
+            
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                showLoading(false);
+                if (data.success) {
+                    displayResults(data.risk_prediction, data.dashboard);
+                } else {
+                    alert('Error en la predicción: ' + data.message);
+                }
+            })
+            .catch(error => {
+                showLoading(false);
+                console.error('Error:', error);
+                alert('Error en la predicción');
+            });
+        });
+
+        // Mostrar resultados
+        function displayResults(riskPrediction, dashboard) {
+            const resultSection = document.getElementById('resultSection');
+            const riskCard = document.getElementById('riskAssessmentCard');
+            const riskBadge = document.getElementById('riskLevelBadge');
+            const probabilityValue = document.getElementById('probabilityValue');
+            const riskRecommendation = document.getElementById('riskRecommendation');
+
+            // Configurar tarjeta según nivel de riesgo
+            riskCard.className = 'risk-assessment-card';
+            if (riskPrediction.risk_level === 1) {
+                riskCard.classList.add('risk-high');
+                riskBadge.className = 'risk-level-badge risk-high-badge';
+            } else if (riskPrediction.risk_level === 2) {
+                riskCard.classList.add('risk-medium');
+                riskBadge.className = 'risk-level-badge risk-medium-badge';
+            } else {
+                riskCard.classList.add('risk-low');
+                riskBadge.className = 'risk-level-badge risk-low-badge';
+            }
+
+            // Actualizar contenido
+            riskBadge.textContent = riskPrediction.risk_level_text;
+            probabilityValue.textContent = (riskPrediction.probability * 100).toFixed(1) + '%';
+            riskRecommendation.textContent = riskPrediction.recommendation;
+
+            // Actualizar probabilidades
+            document.getElementById('highRiskProb').textContent = 
+                (riskPrediction.all_probabilities.Alto * 100).toFixed(1) + '%';
+            document.getElementById('mediumRiskProb').textContent = 
+                (riskPrediction.all_probabilities.Medio * 100).toFixed(1) + '%';
+            document.getElementById('lowRiskProb').textContent = 
+                (riskPrediction.all_probabilities.Bajo * 100).toFixed(1) + '%';
+
+            // Actualizar explicación
+            document.getElementById('explanationText').innerHTML = dashboard.explanation.replace(/\n/g, '<br>');
+
+            // Actualizar recomendaciones
+            const recommendationsList = document.getElementById('recommendationsList');
+            recommendationsList.innerHTML = '';
+            dashboard.recommendations.forEach(rec => {
+                const li = document.createElement('li');
+                li.textContent = rec;
+                recommendationsList.appendChild(li);
+            });
+
+            // Actualizar factores de riesgo
+            const riskFactorsList = document.getElementById('riskFactorsList');
+            riskFactorsList.innerHTML = '';
+            dashboard.risk_factors.forEach(factor => {
+                const li = document.createElement('li');
+                li.textContent = factor;
+                riskFactorsList.appendChild(li);
+            });
+
+            // Actualizar próximos pasos
+            const nextStepsList = document.getElementById('nextStepsList');
+            nextStepsList.innerHTML = '';
+            dashboard.next_steps.forEach(step => {
+                const li = document.createElement('li');
+                li.textContent = step;
+                nextStepsList.appendChild(li);
+            });
+
+            // Mostrar Alerta Clínica
+            if (dashboard.clinical_alert) {
+                const alertSection = document.getElementById('clinicalAlertSection');
+                const alertTitle = document.getElementById('alertTitle');
+                const alertMessage = document.getElementById('alertMessage');
+                const immediateActionsList = document.getElementById('immediateActionsList');
+                const warningSignsList = document.getElementById('warningSignsList');
+                const clinicalNotes = document.getElementById('clinicalNotes');
+
+                alertSection.className = `clinical-alert ${dashboard.clinical_alert.severity}`;
+                alertTitle.textContent = dashboard.clinical_alert.message;
+                alertMessage.textContent = dashboard.clinical_alert.message;
+
+                // Acciones inmediatas
+                immediateActionsList.innerHTML = '';
+                dashboard.clinical_alert.immediate_actions.forEach(action => {
+                    const li = document.createElement('li');
+                    li.textContent = action;
+                    immediateActionsList.appendChild(li);
+                });
+
+                // Signos de alerta
+                warningSignsList.innerHTML = '';
+                dashboard.clinical_alert.warning_signs.forEach(sign => {
+                    const li = document.createElement('li');
+                    li.textContent = sign;
+                    warningSignsList.appendChild(li);
+                });
+
+                clinicalNotes.textContent = dashboard.clinical_alert.clinical_notes;
+                alertSection.style.display = 'block';
+            }
+
+            // Mostrar Resumen Clínico
+            if (dashboard.clinical_summary) {
+                const summarySection = document.getElementById('clinicalSummarySection');
+                document.getElementById('keyMessage').textContent = dashboard.clinical_summary.key_message;
+                document.getElementById('priorityLevel').textContent = dashboard.clinical_summary.priority_level;
+                document.getElementById('timeToAction').textContent = dashboard.clinical_summary.time_to_action;
+                document.getElementById('clinicalUrgency').textContent = dashboard.clinical_summary.clinical_urgency;
+                document.getElementById('expectedCourse').textContent = dashboard.clinical_summary.expected_course;
+                summarySection.style.display = 'block';
+            }
+
+            // Mostrar Explicación Clínica Detallada
+            if (dashboard.detailed_explanation) {
+                const detailedSection = document.getElementById('detailedExplanationSection');
+                document.getElementById('riskInterpretation').textContent = dashboard.detailed_explanation.risk_interpretation;
+                document.getElementById('clinicalReasoning').textContent = dashboard.detailed_explanation.clinical_reasoning;
+                document.getElementById('prognosis').textContent = dashboard.detailed_explanation.prognosis;
+                document.getElementById('monitoringPlan').textContent = dashboard.detailed_explanation.monitoring_plan;
+                document.getElementById('preventionStrategy').textContent = dashboard.detailed_explanation.prevention_strategy;
+                detailedSection.style.display = 'block';
+            }
+
+            // Mostrar resultados
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            updateModelStatus();
+        });
+    </script>
+</body>
+</html> 
