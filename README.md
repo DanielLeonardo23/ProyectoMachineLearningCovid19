@@ -1,10 +1,15 @@
-🎯 Objetivo del Proyecto
-Este sistema clasifica el riesgo de hospitalización por COVID-19 en 3 niveles (Alto/Medio/Bajo) para facilitar la prevención temprana y optimizar la asignación de recursos médicos.
+# 🧠 Sistema Predictivo de Hospitalización por COVID-19
 
-🏗️ Arquitectura del Sistema
-El proyecto implementa una arquitectura basada en agentes con los siguientes componentes:
+🎯 **Objetivo del Proyecto**  
+Este sistema clasifica el riesgo de hospitalización por COVID-19 en 3 niveles (**Alto**, **Medio**, **Bajo**) para facilitar la prevención temprana y optimizar la asignación de recursos médicos.
 
-📁 Estructura del Proyecto
+---
+
+## 🏗️ Arquitectura del Sistema
+
+El proyecto implementa una **arquitectura basada en agentes** con los siguientes componentes:
+
+```
 ProyectoMachineLearningCovid19/
 ├── 🤖 agents/                 # Agentes especializados
 │   ├── data_extractor.py      # Extracción de datos
@@ -18,125 +23,201 @@ ProyectoMachineLearningCovid19/
 ├── ⚙️ config.py              # Configuración
 ├── 🚀 app.py                 # Aplicación principal
 └── 📋 requirements.txt       # Dependencias
-🔧 Tecnologías Utilizadas
-Backend: Flask, Python 3.8+
-Machine Learning: Scikit-learn, Pandas, NumPy
-Visualización: Plotly, Matplotlib, Seaborn
-IA Generativa: Google Gemini API
-Balanceo de Datos: Imbalanced-learn
-Frontend: HTML, CSS, JavaScript
-🚀 Instalación y Configuración
-1. Clonar el Repositorio
-Copygit clone https://github.com/Johnkl725/ProyectoMachineLearningCovid19.git
-cd ProyectoMachineLearningCovid19
-2. Crear Entorno Virtual
-Copypython -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
-3. Instalar Dependencias
-Copypip install -r requirements.txt
-4. Configurar Variables de Entorno
-Crea un archivo .env en la raíz del proyecto:
+```
 
+---
+
+## 🔧 Tecnologías Utilizadas
+
+- **Backend**: Flask, Python 3.8+  
+- **Machine Learning**: Scikit-learn, Pandas, NumPy  
+- **Visualización**: Plotly, Matplotlib, Seaborn  
+- **IA Generativa**: Google Gemini API  
+- **Balanceo de Datos**: Imbalanced-learn  
+- **Frontend**: HTML, CSS, JavaScript  
+
+---
+
+## 🚀 Instalación y Configuración
+
+1. **Clonar el Repositorio**
+
+```bash
+git clone https://github.com/Johnkl725/ProyectoMachineLearningCovid19.git
+cd ProyectoMachineLearningCovid19
+```
+
+2. **Crear Entorno Virtual**
+
+```bash
+python -m venv venv
+# Activar entorno virtual:
+source venv/bin/activate          # En Mac/Linux
+venv\Scripts\activate             # En Windows
+```
+
+3. **Instalar Dependencias**
+
+```bash
+pip install -r requirements.txt
+```
+
+4. **Configurar Variables de Entorno**  
+Crear un archivo `.env` en la raíz del proyecto con:
+
+```
 GEMINI_API_KEY=tu_api_key_aqui
 DEBUG=True
-5. Ejecutar la Aplicación
-Copypython app.py
-La aplicación estará disponible en http://localhost:5000
+```
 
-📈 Funcionalidades Principales
-🔄 Pipeline de Machine Learning Completo
-Fase 1: Definición del Problema (Clasificación multiclase)
-Fase 2: Recolección de Datos (Dataset COVID-19)
-Fase 3: Preparación de Datos (Limpieza y codificación)
-Fase 4: División de Datos (Train/Test)
-Fase 5: Selección de Modelos (Múltiples algoritmos)
-Fase 6: Entrenamiento (Con balanceo de clases)
-Fase 7: Evaluación (Métricas comprehensivas)
-Fase 8: Optimización y Selección del Mejor Modelo
-🎯 Clasificación de Riesgo
-El sistema clasifica el riesgo en 3 niveles:
+5. **Ejecutar la Aplicación**
 
-🔴 Alto: Riesgo elevado de hospitalización
-🟡 Medio: Riesgo moderado
-🟢 Bajo: Riesgo mínimo
-📊 Dashboard Inteligente
-Visualizaciones interactivas con Plotly
-Explicaciones generadas por IA (Gemini)
-Métricas de rendimiento del modelo
-Análisis de importancia de características
-🛠️ API Endpoints
-Endpoint	Método	Descripción
-/	GET	Página principal
-/train_model	POST	Entrenar modelo completo
-/predict	POST	Realizar predicción
-/load_model	POST	Cargar modelo preentrenado
-/model_status	GET	Estado del modelo
-/data_info	GET	Información del dataset
-📊 Métricas de Evaluación
-El sistema evalúa los modelos usando:
+```bash
+python app.py
+```
 
-Accuracy: Precisión general
-Recall: Sensibilidad por clase
-Precision: Precisión por clase
-F1-Score: Media armónica
-Matriz de Confusión: Análisis detallado
-🤖 Agentes Especializados
-DataExtractor
-Carga y validación de datos
-Análisis de calidad del dataset
-Información de variables objetivo
-DataPreprocessor
-Limpieza de datos
-Codificación de variables categóricas
-Escalado de características
-Balanceo de clases
-MLPredictor
-Selección de múltiples modelos
-Entrenamiento optimizado
-Evaluación comprehensiva
-Persistencia de modelos
-DashboardAgent
-Generación de dashboards inteligentes
-Explicaciones con IA generativa
-Visualizaciones interactivas
-🔒 Seguridad y Consideraciones
-API Key: Configurar correctamente la clave de Gemini
-CORS: Configurado para desarrollo
-Logging: Sistema de logs comprehensivo
-Validación: Validación de entrada de datos
-🚀 Próximas Mejoras
- Implementar autenticación de usuarios
- Agregar más algoritmos de ML
- Integración con bases de datos
- API REST documentada con Swagger
- Deployment en contenedores Docker
- Tests unitarios y de integración
-🤝 Contribuciones
-Las contribuciones son bienvenidas. Por favor:
+La aplicación estará disponible en: [http://localhost:5000](http://localhost:5000)
 
-Fork el proyecto
-Crea una rama para tu feature (git checkout -b feature/AmazingFeature)
-Commit tus cambios (git commit -m 'Add some AmazingFeature')
-Push a la rama (git push origin feature/AmazingFeature)
-Abre un Pull Request
-📄 Licencia
-Este proyecto está bajo la Licencia MIT. Ver el archivo LICENSE para más detalles.
+---
 
-👨‍💻 Autor
-Johnkl725 - GitHub Profile
+## 📈 Funcionalidades Principales
 
-🙏 Reconocimientos
-Dataset COVID-19 de fuentes públicas
-Comunidad de Python y Machine Learning
-Google Gemini API para IA generativa
-📱 Capturas de Pantalla
-Interfaz Principal
-La aplicación cuenta con una interfaz web intuitiva para:
+### 🔄 Pipeline de Machine Learning
 
-Entrada de datos del paciente
-Entrenamiento del modelo
-Visualización de predicciones
-Dashboard de métricas
-Lenguajes del Proyecto
-Python: 64.4% (Lógica principal y ML)
-HTML: 35.6% (Templates web)
+1. Definición del Problema (Clasificación multiclase)  
+2. Recolección de Datos  
+3. Preparación de Datos (Limpieza, codificación)  
+4. División Train/Test  
+5. Selección de Modelos  
+6. Entrenamiento con balanceo de clases  
+7. Evaluación del modelo  
+8. Optimización y Persistencia  
+
+### 🎯 Clasificación de Riesgo
+
+- 🔴 **Alto**: Riesgo elevado de hospitalización  
+- 🟡 **Medio**: Riesgo moderado  
+- 🟢 **Bajo**: Riesgo mínimo  
+
+### 📊 Dashboard Inteligente
+
+- Visualizaciones interactivas con Plotly  
+- Explicaciones generadas con IA (Gemini)  
+- Métricas de rendimiento  
+- Análisis de importancia de variables  
+
+---
+
+## 🛠️ API Endpoints
+
+| Endpoint        | Método | Descripción                   |
+|----------------|--------|-------------------------------|
+| `/`            | GET    | Página principal              |
+| `/train_model` | POST   | Entrenar modelo completo      |
+| `/predict`     | POST   | Realizar predicción           |
+| `/load_model`  | POST   | Cargar modelo preentrenado    |
+| `/model_status`| GET    | Estado del modelo             |
+| `/data_info`   | GET    | Información del dataset       |
+
+---
+
+## 📊 Métricas de Evaluación
+
+- **Accuracy**  
+- **Recall** (Sensibilidad por clase)  
+- **Precision**  
+- **F1-Score**  
+- **Matriz de Confusión**  
+
+---
+
+## 🤖 Agentes Especializados
+
+### `DataExtractor`
+- Carga y validación de datos  
+- Análisis de calidad del dataset  
+
+### `DataPreprocessor`
+- Limpieza y codificación  
+- Escalado y balanceo de clases  
+
+### `MLPredictor`
+- Entrenamiento y evaluación  
+- Persistencia del modelo  
+
+### `DashboardAgent`
+- Generación de dashboards  
+- Explicaciones con IA generativa  
+
+---
+
+## 🔒 Seguridad y Consideraciones
+
+- API Key segura para Gemini  
+- Validación de entradas  
+- Logging avanzado  
+- CORS habilitado en desarrollo  
+
+---
+
+## 🚀 Próximas Mejoras
+
+- Autenticación de usuarios  
+- Nuevos algoritmos de ML  
+- Integración con bases de datos  
+- Documentación REST con Swagger  
+- Dockerización  
+- Tests unitarios y de integración  
+
+---
+
+## 🤝 Contribuciones
+
+¡Las contribuciones son bienvenidas!
+
+```bash
+# Pasos sugeridos:
+1. Fork el proyecto
+2. git checkout -b feature/NuevaFeature
+3. git commit -m 'Agregar nueva funcionalidad'
+4. git push origin feature/NuevaFeature
+5. Abrir un Pull Request
+```
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la **Licencia MIT**. Ver archivo [LICENSE](LICENSE).
+
+---
+
+## 👨‍💻 Autor
+
+**Johnkl725** – [GitHub Profile](https://github.com/Johnkl725)
+
+---
+
+## 🙏 Reconocimientos
+
+- Dataset COVID-19 de fuentes públicas  
+- Comunidad de Python y Machine Learning  
+- Google Gemini API para IA generativa  
+
+---
+
+## 📱 Capturas de Pantalla
+
+- Entrada de datos del paciente  
+- Entrenamiento del modelo  
+- Predicciones con IA  
+- Dashboard interactivo
+
+---
+
+## 📊 Lenguajes del Proyecto
+
+```text
+Python: 64.4% (Lógica y ML)
+HTML:   35.6% (Frontend web)
+```
