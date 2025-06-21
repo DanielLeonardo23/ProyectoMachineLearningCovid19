@@ -57,23 +57,32 @@ class MLPredictor:
     def select_models(self) -> Dict[str, Any]:
         """
         Fase 5: Selección del Modelo
-        Define solo Logistic Regression para entrenamiento rápido
+        Define modelos para entrenamiento incluyendo Random Forest
         """
-        logger.info("Seleccionando modelo Logistic Regression para entrenamiento rápido...")
+        logger.info("Seleccionando modelos para entrenamiento...")
         
         models = {
             'logistic_regression': {
-                'model': LogisticRegression(random_state=42, max_iter=1000, multi_class='multinomial'),
+                'model': LogisticRegression(random_state=42, max_iter=1000),
                 'params': {
                     'C': [0.1, 1, 10],
                     'penalty': ['l2'],
                     'solver': ['lbfgs']
                 }
+            },
+            'random_forest': {
+                'model': RandomForestClassifier(random_state=42, n_jobs=-1),
+                'params': {
+                    'n_estimators': [100, 200],
+                    'max_depth': [10, 20, None],
+                    'min_samples_split': [2, 5],
+                    'min_samples_leaf': [1, 2]
+                }
             }
         }
         
         self.models = models
-        logger.info(f"Modelo seleccionado: {list(models.keys())}")
+        logger.info(f"Modelos seleccionados: {list(models.keys())}")
         return models
     
     def train_models(self, X_train: pd.DataFrame, y_train: pd.Series) -> Dict[str, Any]:

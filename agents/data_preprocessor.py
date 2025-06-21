@@ -315,9 +315,13 @@ class DataPreprocessor:
         X = data[self.feature_columns]
         y = data[self.target_column]
         
-        # Verificar que solo tenemos valores 1 y 2
+        # CORREGIR CODIFICACIÓN: Convertir 1,2 a 0,1 para scikit-learn
+        # 1 (Positivo) -> 1, 2 (Negativo) -> 0
+        y = y.map({1: 1, 2: 0})
+        
+        # Verificar que solo tenemos valores 0 y 1
         unique_values = y.unique()
-        logger.info(f"Valores únicos en variable objetivo: {unique_values}")
+        logger.info(f"Valores únicos en variable objetivo (después de corrección): {unique_values}")
         logger.info(f"Distribución de clases:")
         class_counts = y.value_counts().sort_index()
         for value, count in class_counts.items():
