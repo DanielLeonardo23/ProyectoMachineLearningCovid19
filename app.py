@@ -128,7 +128,7 @@ def train_model():
             "best_model": best_model_name,
             "metrics": metrics_for_json,
             "data_info": data_info,
-            "risk_levels": ml_predictor.risk_levels,
+            "risk_levels": ml_predictor.covid_classes,
             "focus": "Prevención temprana de COVID-19 y clasificación de riesgo de hospitalización"
         })
         
@@ -176,7 +176,7 @@ def predict():
         X_transformed = data_preprocessor.transform_new_data(patient_df)
         
         # Realizar predicción de riesgo
-        risk_prediction = ml_predictor.predict_risk_level(X_transformed)
+        risk_prediction = ml_predictor.predict_risk(X_transformed)
         
         # Crear dashboard con explicaciones
         dashboard = dashboard_agent.create_prediction_dashboard(
@@ -242,7 +242,7 @@ def load_model():
                 "success": True,
                 "message": "Modelo pre-entrenado cargado exitosamente",
                 "model_name": ml_predictor.best_model_name,
-                "risk_levels": ml_predictor.risk_levels,
+                "risk_levels": ml_predictor.covid_classes,
                 "focus": "Prevención temprana de COVID-19 y clasificación de riesgo de hospitalización"
             })
         else:
@@ -278,7 +278,7 @@ def model_status():
         "trained": model_trained,
         "model_name": ml_predictor.best_model_name if model_trained else None,
         "metrics": metrics_for_json,
-        "risk_levels": ml_predictor.risk_levels,
+        "risk_levels": ml_predictor.covid_classes,
         "focus": "Prevención temprana de COVID-19 y clasificación de riesgo de hospitalización"
     })
 

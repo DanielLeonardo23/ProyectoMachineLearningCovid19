@@ -49,8 +49,8 @@ class MLPredictor:
             X, y, test_size=test_size, random_state=random_state, stratify=y
         )
         
-        logger.info(f"Conjunto de entrenamiento: {X_train.shape}")
-        logger.info(f"Conjunto de prueba: {X_test.shape}")
+        logger.info(f"Conjunto de entrenamiento: {X_train.shape if hasattr(X_train, 'shape') else 'N/A'}")
+        logger.info(f"Conjunto de prueba: {X_test.shape if hasattr(X_test, 'shape') else 'N/A'}")
         
         return X_train, X_test, y_train, y_test
     
@@ -150,7 +150,11 @@ class MLPredictor:
             real_counts = y_test.value_counts().sort_index()
             logger.info("Distribución de clases reales:")
             for class_id, count in real_counts.items():
-                class_name = self.covid_classes.get(int(class_id), f"Clase {class_id}")
+                try:
+                    class_id_int = int(class_id)
+                    class_name = self.covid_classes.get(class_id_int, f"Clase {class_id}")
+                except (ValueError, TypeError):
+                    class_name = f"Clase {class_id}"
                 percentage = count / len(y_test) * 100
                 logger.info(f"  {class_name}: {count} casos ({percentage:.1f}%)")
             
@@ -158,7 +162,11 @@ class MLPredictor:
             pred_counts = pd.Series(y_pred).value_counts().sort_index()
             logger.info("Distribución de predicciones:")
             for class_id, count in pred_counts.items():
-                class_name = self.covid_classes.get(int(class_id), f"Clase {class_id}")
+                try:
+                    class_id_int = int(class_id)
+                    class_name = self.covid_classes.get(class_id_int, f"Clase {class_id}")
+                except (ValueError, TypeError):
+                    class_name = f"Clase {class_id}"
                 percentage = count / len(y_pred) * 100
                 logger.info(f"  {class_name}: {count} casos ({percentage:.1f}%)")
             
@@ -225,6 +233,10 @@ class MLPredictor:
             if metrics[metric] > best_score:
                 best_score = metrics[metric]
                 best_model_name = name
+        
+        if best_model_name is None:
+            # Si no se encontró ningún modelo, usar el primero disponible
+            best_model_name = list(self.model_metrics.keys())[0] if self.model_metrics else "unknown"
         
         self.best_model = self.trained_models[best_model_name]['model']
         self.best_model_name = best_model_name
@@ -385,6 +397,11 @@ class MLPredictor:
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
+        # Verificar que el modelo esté disponible
+        if self.best_model is None:
+            logger.warning("No hay modelo disponible para crear gráficos")
+            return
+        
         # Matriz de confusión
         y_pred = self.best_model.predict(X_test)
         cm = confusion_matrix(y_test, y_pred)
@@ -405,7 +422,8 @@ class MLPredictor:
             plt.figure(figsize=(12, 8))
             top_features = self.feature_importance.head(15)
             plt.barh(range(len(top_features)), top_features['importance'])
-            plt.yticks(range(len(top_features)), top_features['feature'])
+            feature_names = top_features['feature'].tolist() if hasattr(top_features['feature'], 'tolist') else list(top_features['feature'])
+            plt.yticks(range(len(top_features)), feature_names)
             plt.xlabel('Importancia')
             plt.title('Importancia de Características - Prevención Temprana')
             plt.gca().invert_yaxis()

@@ -297,40 +297,31 @@ class DataPreprocessor:
         return X_scaled_df
     
     def prepare_features(self, data: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
-        """
-        Prepara las características y la variable objetivo original (COVID positivo/negativo)
-        """
-        logger.info("Preparando características para clasificación COVID positivo/negativo...")
+        """Prepara X y y para el modelo"""
+        logger.info("Preparando características y variable objetivo...")
         
-        # Usar la variable objetivo original: covid_res
-        # 1 = COVID positivo, 2 = COVID negativo
-        if 'covid_res' not in data.columns:
-            raise ValueError("La columna 'covid_res' no está presente en los datos")
+        # Crear score de riesgo y nivel de riesgo
+        # data_with_risk = self.create_risk_score(data) # Desactivado para usar clasificación binaria
         
-        # Definir columnas a excluir
-        exclude_cols = ['id']
-        self.feature_columns = [col for col in data.columns if col not in exclude_cols and col != self.target_column]
-        
-        # Separar características y objetivo
-        X = data[self.feature_columns]
         y = data[self.target_column]
         
-        # CORREGIR CODIFICACIÓN: Convertir 1,2 a 0,1 para scikit-learn
-        # 1 (Positivo) -> 1, 2 (Negativo) -> 0
-        y = y.map({1: 1, 2: 0})
+        # Definir características a excluir
+        exclude_cols = [
+            'id', self.target_column,
+            'entry_date_day', 'entry_date_month', 'entry_date_year',
+            'date_symptoms_day', 'date_symptoms_month', 'date_symptoms_year'
+        ]
         
-        # Verificar que solo tenemos valores 0 y 1
-        unique_values = y.unique()
-        logger.info(f"Valores únicos en variable objetivo (después de corrección): {unique_values}")
-        logger.info(f"Distribución de clases:")
-        class_counts = y.value_counts().sort_index()
-        for value, count in class_counts.items():
-            class_name = "Positivo" if value == 1 else "Negativo"
-            percentage = count / len(y) * 100
-            logger.info(f"  {class_name} (valor {value}): {count} casos ({percentage:.1f}%)")
+        # Filtrar columnas que existen en el dataframe
+        existing_exclude_cols = [col for col in exclude_cols if col in data.columns]
         
-        logger.info(f"Características: {len(self.feature_columns)}")
-        logger.info(f"Registros: {len(data)}")
+        X = data.drop(columns=existing_exclude_cols)
+        
+        self.feature_columns = X.columns.tolist()
+        self.processed_data = data
+        
+        logger.info(f"Características preparadas: {X.shape}")
+        logger.info(f"Variable objetivo preparada: {y.shape}")
         
         return X, y
     

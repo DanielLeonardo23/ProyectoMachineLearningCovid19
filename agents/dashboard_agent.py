@@ -150,58 +150,46 @@ class DashboardAgent:
     
     def create_prediction_dashboard(self, patient_data: Dict[str, Any], 
                                   risk_prediction: Dict[str, Any],
-                                  model_metrics: Dict[str, Any]) -> Dict[str, Any]:
+                                  model_metrics: Dict[str, Any]) -> str:
         """
-        Crea un dashboard completo con la evaluación de riesgo y explicaciones clínicas
+        Crea un dashboard HTML amigable para mostrar en el frontend
         """
         # Generar explicación y recomendaciones
         explanation = self.generate_explanation(risk_prediction, patient_data, model_metrics)
         recommendations = self.generate_recommendations(risk_prediction, patient_data)
-        
-        # Generar alertas clínicas y explicación detallada
         clinical_alert = self.generate_clinical_alert(risk_prediction, patient_data)
         detailed_explanation = self.generate_detailed_explanation(risk_prediction, patient_data)
-        
-        # Preparar métricas para JSON
-        metrics_for_json = {}
-        if model_metrics:
-            for key, value in model_metrics.items():
-                if isinstance(value, np.ndarray):
-                    metrics_for_json[key] = value.tolist()
-                elif isinstance(value, np.integer):
-                    metrics_for_json[key] = int(value)
-                elif isinstance(value, np.floating):
-                    metrics_for_json[key] = float(value)
-                else:
-                    metrics_for_json[key] = value
-        
-        # Crear dashboard completo
-        dashboard = {
-            "timestamp": datetime.now().isoformat(),
-            "patient_data": patient_data,
-            "risk_assessment": {
-                "level": int(risk_prediction['risk_level']),
-                "level_text": risk_prediction['risk_level_text'],
-                "probability": float(risk_prediction['probability']),
-                "confidence_level": self._get_confidence_level(risk_prediction['probability']),
-                "all_probabilities": {
-                    'Positivo': float(risk_prediction['all_probabilities']['Positivo']),
-                    'Negativo': float(risk_prediction['all_probabilities']['Negativo'])
-                },
-                "recommendation": risk_prediction['recommendation']
-            },
-            "clinical_alert": clinical_alert,
-            "detailed_explanation": detailed_explanation,
-            "explanation": explanation,
-            "recommendations": recommendations,
-            "model_metrics": metrics_for_json,
-            "risk_factors": self._identify_risk_factors(patient_data),
-            "next_steps": self._get_next_steps(risk_prediction),
-            "clinical_summary": self._generate_clinical_summary(risk_prediction, patient_data),
-            "focus": "Prevención temprana de COVID-19 y clasificación de riesgo de hospitalización"
-        }
-        
-        return dashboard
+        risk_factors = self._identify_risk_factors(patient_data)
+        next_steps = self._get_next_steps(risk_prediction)
+        clinical_summary = self._generate_clinical_summary(risk_prediction, patient_data)
+
+        html = f'''
+        <div class="dashboard-xai">
+            <h5>Explicación Médica</h5>
+            <div class="explanation-box">{explanation}</div>
+            <h5 class="mt-3">Recomendaciones</h5>
+            <ul class="recommendations-list">
+                {''.join(f'<li>{rec}</li>' for rec in recommendations)}
+            </ul>
+            <h5 class="mt-3">Factores de Riesgo Identificados</h5>
+            <ul class="recommendations-list">
+                {''.join(f'<li>{factor}</li>' for factor in risk_factors)}
+            </ul>
+            <h5 class="mt-3">Próximos Pasos</h5>
+            <ul class="recommendations-list">
+                {''.join(f'<li>{step}</li>' for step in next_steps)}
+            </ul>
+            <h5 class="mt-3">Resumen Clínico</h5>
+            <ul class="recommendations-list">
+                <li><b>Mensaje Principal:</b> {clinical_summary.get('key_message','')}</li>
+                <li><b>Nivel de Prioridad:</b> {clinical_summary.get('priority_level','')}</li>
+                <li><b>Tiempo de Acción:</b> {clinical_summary.get('time_to_action','')}</li>
+                <li><b>Urgencia Clínica:</b> {clinical_summary.get('clinical_urgency','')}</li>
+                <li><b>Evolución Esperada:</b> {clinical_summary.get('expected_course','')}</li>
+            </ul>
+        </div>
+        '''
+        return html
     
     def _get_confidence_level(self, probability: float) -> str:
         """Determina el nivel de confianza basado en la probabilidad"""
