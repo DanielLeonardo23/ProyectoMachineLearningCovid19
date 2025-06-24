@@ -373,6 +373,252 @@
             margin-bottom: 20px;
             display: inline-block;
         }
+        
+        /* Estilos para el Dashboard Inteligente */
+        .dashboard-xai {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .dashboard-xai h5 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .chart-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chart-card h6 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        /* Estilos para gráficas de factores de riesgo */
+        .risk-factors-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .risk-factor-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .risk-factor-item.high-risk {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+        }
+        
+        .risk-factor-item.moderate-risk {
+            background: linear-gradient(135deg, #ffaa00 0%, #ff8c00 100%);
+            color: white;
+        }
+        
+        .risk-factor-item.total-score {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .risk-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* Estilos para gráficas de síntomas */
+        .symptoms-chart {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .symptom-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .symptom-item.critical {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+        
+        .symptom-item.moderate {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .symptom-item.mild {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+        
+        .symptom-count {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        /* Estilos para métricas del modelo */
+        .metrics-radar {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .metric-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .metric-name {
+            min-width: 100px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .metric-bar {
+            flex: 1;
+            height: 20px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+        
+        .metric-value {
+            min-width: 60px;
+            font-weight: bold;
+            color: #667eea;
+            text-align: right;
+        }
+        
+        /* Estilos para gráfica de confianza */
+        .confidence-chart {
+            text-align: center;
+        }
+        
+        .confidence-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: white;
+        }
+        
+        .confidence-circle.muy-alta {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+        }
+        
+        .confidence-circle.alta {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .confidence-circle.media {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+        }
+        
+        .confidence-circle.baja {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+        }
+        
+        /* Estilos para secciones del dashboard */
+        .model-metrics-section,
+        .model-charts-section,
+        .patient-analysis-section,
+        .performance-charts-section,
+        .explanation-section,
+        .recommendations-section,
+        .risk-factors-section,
+        .next-steps-section,
+        .clinical-summary-section,
+        .clinical-alerts-section {
+            margin-bottom: 30px;
+        }
+        
+        /* Mejoras para las métricas existentes */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease;
+        }
+        
+        .metric-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        /* Responsive design para el dashboard */
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .chart-container {
+                margin-bottom: 20px;
+            }
+            
+            .dashboard-xai {
+                padding: 15px;
+            }
+        }
     </style>
 </head>
 <body>

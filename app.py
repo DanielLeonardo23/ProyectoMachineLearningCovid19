@@ -4,7 +4,7 @@ Integra todos los agentes y proporciona la interfaz web
 Enfocado en prevención temprana y clasificación de riesgo de hospitalización
 """
 
-from flask import Flask, render_template, request, jsonify, redirect, url_for
+from flask import Flask, render_template, request, jsonify, redirect, url_for, send_from_directory
 from flask_cors import CORS
 import pandas as pd
 import numpy as np
@@ -16,7 +16,7 @@ from datetime import datetime
 from agents.data_extractor import DataExtractor
 from agents.data_preprocessor import DataPreprocessor
 from agents.ml_predictor import MLPredictor
-from agents.dashboard_agent import DashboardAgent
+from agents.dashboard_agent import IntelligentDashboardAgent
 from config import GEMINI_API_KEY, MODEL_PATH, SCALER_PATH
 
 # Configurar logging
@@ -30,11 +30,17 @@ CORS(app)
 data_extractor = DataExtractor()
 data_preprocessor = DataPreprocessor()
 ml_predictor = MLPredictor()
-dashboard_agent = DashboardAgent(GEMINI_API_KEY)
+dashboard_agent = IntelligentDashboardAgent(GEMINI_API_KEY)
 
 # Variables globales para el modelo
 model_trained = False
 model_metrics = {}
+
+# Variables globales para almacenar la última predicción y datos del paciente
+last_patient_data = None
+last_risk_prediction = None
+last_dashboard_html = None
+last_model_metrics = None
 
 @app.route('/')
 def index():
@@ -142,7 +148,7 @@ def train_model():
 @app.route('/predict', methods=['POST'])
 def predict():
     """Realiza predicción de riesgo con datos del formulario"""
-    global model_trained, model_metrics
+    global model_trained, model_metrics, last_patient_data, last_risk_prediction, last_dashboard_html, last_model_metrics
     
     if not model_trained:
         return jsonify({
@@ -179,9 +185,15 @@ def predict():
         risk_prediction = ml_predictor.predict_risk(X_transformed)
         
         # Crear dashboard con explicaciones
-        dashboard = dashboard_agent.create_prediction_dashboard(
+        dashboard_html = dashboard_agent.create_prediction_dashboard(
             patient_data, risk_prediction, model_metrics
         )
+        
+        # Guardar la última predicción y datos
+        last_patient_data = patient_data
+        last_risk_prediction = risk_prediction
+        last_dashboard_html = dashboard_html
+        last_model_metrics = model_metrics
         
         # Preparar métricas para JSON
         metrics_for_json = {}
@@ -211,7 +223,7 @@ def predict():
         return jsonify({
             "success": True,
             "risk_prediction": risk_prediction_for_json,
-            "dashboard": dashboard,
+            "dashboard": dashboard_html,
             "focus": "Prevención temprana de COVID-19 y clasificación de riesgo de hospitalización"
         })
         
@@ -303,6 +315,18 @@ def data_info():
             "success": False,
             "message": f"Error obteniendo información del dataset: {str(e)}"
         }), 500
+
+@app.route('/dashboard')
+def dashboard():
+    global last_patient_data, last_risk_prediction, last_dashboard_html, last_model_metrics
+    # Si no hay predicción previa, redirigir al index
+    if last_patient_data is None or last_risk_prediction is None or last_dashboard_html is None:
+        return redirect(url_for('index'))
+    # Renderizar la nueva plantilla dashboard.html
+    return render_template('dashboard.html',
+                           dashboard_html=last_dashboard_html,
+                           risk_prediction=last_risk_prediction,
+                           model_metrics=last_model_metrics)
 
 if __name__ == '__main__':
     # Intentar cargar modelo pre-entrenado al iniciar

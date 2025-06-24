@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Inteligente COVID-19</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .main-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 30px auto;
+            padding: 30px;
+            max-width: 1200px;
+        }
+        .dashboard-title {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        .dashboard-title h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        .dashboard-title p {
+            color: #7f8c8d;
+        }
+        .dashboard-section {
+            margin-bottom: 40px;
+        }
+        .dashboard-section h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .dashboard-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+        .img-fluid {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="dashboard-title">
+            <h1><i class="fas fa-tachometer-alt"></i> Dashboard Inteligente COVID-19</h1>
+            <p>Visualización de resultados, explicaciones y métricas del modelo y paciente más reciente.</p>
+        </div>
+
+        <!-- Gráficas de Evaluación del Modelo -->
+        <div class="dashboard-section">
+            <h3><i class="fas fa-chart-bar"></i> Gráficas de Evaluación del Modelo</h3>
+            <div class="row">
+                <div class="col-md-6 dashboard-card">
+                    <img src="/static/confusion_matrix.png" alt="Matriz de Confusión" class="img-fluid">
+                    <p class="text-center mt-2"><small>Matriz de Confusión</small></p>
+                </div>
+                <div class="col-md-6 dashboard-card">
+                    <img src="/static/feature_importance.png" alt="Importancia de Características" class="img-fluid">
+                    <p class="text-center mt-2"><small>Importancia de Características</small></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Explicación Inteligente y Métricas del Paciente -->
+        <div class="dashboard-section">
+            <h3><i class="fas fa-brain"></i> Explicación Inteligente y Métricas del Paciente</h3>
+            <div class="row">
+                <div class="col-md-6 dashboard-card">
+                    <h5>Explicación Inteligente</h5>
+                    {{ dashboard_html|safe }}
+                </div>
+                <div class="col-md-6 dashboard-card">
+                    <h5>Resultado de la Predicción</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><b>Nivel de Riesgo:</b> {{ risk_prediction.risk_level_text }}</li>
+                        <li class="list-group-item"><b>Probabilidad:</b> {{ (risk_prediction.probability * 100)|round(1) }}%</li>
+                        <li class="list-group-item"><b>Recomendación:</b> {{ risk_prediction.recommendation }}</li>
+                    </ul>
+                    <h5 class="mt-4">Métricas del Modelo</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item"><b>Precisión:</b> {{ (model_metrics.accuracy * 100)|round(1) }}%</li>
+                        <li class="list-group-item"><b>Especificidad:</b> {{ (model_metrics.precision * 100)|round(1) }}%</li>
+                        <li class="list-group-item"><b>Sensibilidad:</b> {{ (model_metrics.recall * 100)|round(1) }}%</li>
+                        <li class="list-group-item"><b>F1-Score:</b> {{ (model_metrics.f1_score * 100)|round(1) }}%</li>
+                        <li class="list-group-item"><b>ROC-AUC:</b> {{ (model_metrics.roc_auc * 100)|round(1) }}%</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-primary"><i class="fas fa-arrow-left"></i> Volver al inicio</a>
+        </div>
+    </div>
+</body>
+</html> 
