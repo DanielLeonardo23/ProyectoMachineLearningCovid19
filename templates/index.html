@@ -652,6 +652,24 @@
             </div>
         </div>
 
+        <!-- NUEVO: Control y Limpieza de Datos -->
+        <div id="preprocessor-controls-container" class="card text-center mb-4">
+            <div class="card-header">
+                <h3><i class="fas fa-broom"></i> Control y Limpieza de Datos</h3>
+            </div>
+            <div class="card-body">
+                <div id="preprocessor-status-container" class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> Haz clic en "Limpiar y Validar Datos" para analizar la calidad y consistencia de los datos.
+                </div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <button id="run-preprocessor-btn" class="btn btn-primary btn-lg" type="button">
+                        <i class="fas fa-broom"></i> Limpiar y Validar Datos
+                    </button>
+                </div>
+                <div id="preprocessor-summary" class="mt-3" style="display:none; text-align:left;"></div>
+            </div>
+        </div>
+
         <div class="row">
             <!-- Sección del Formulario -->
             <div class="col-lg-5">
@@ -787,6 +805,9 @@
             const dashboardContent = document.getElementById('dashboard-content');
             const confusionMatrixImg = document.getElementById('confusion-matrix-img');
             const featureImportanceImg = document.getElementById('feature-importance-img');
+            const runPreprocessorBtn = document.getElementById('run-preprocessor-btn');
+            const preprocessorStatusContainer = document.getElementById('preprocessor-status-container');
+            const preprocessorSummary = document.getElementById('preprocessor-summary');
 
             // --- Control del Modelo ---
 
@@ -915,6 +936,73 @@
 
             // Cargar estado inicial
             updateModelStatus();
+
+            // --- Control y Limpieza de Datos ---
+
+            runPreprocessorBtn.addEventListener('click', async function() {
+                preprocessorStatusContainer.className = 'alert alert-info';
+                preprocessorStatusContainer.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando limpieza y validación de datos...';
+                preprocessorSummary.style.display = 'none';
+                try {
+                    const response = await fetch('/preprocess_data', { method: 'POST' });
+                    const data = await response.json();
+                    if (data.success) {
+                        preprocessorStatusContainer.className = 'alert alert-success';
+                        preprocessorStatusContainer.innerHTML = '<i class="fas fa-check-circle"></i> Datos limpiados y validados correctamente.';
+                        // Construir resumen HTML (sin preview)
+                        let html = '<h5>Resumen de Calidad de Datos</h5>';
+                        html += '<b>Antes de limpiar:</b><ul>';
+                        html += `<li>Filas: ${data.quality_before.total_rows}</li>`;
+                        html += `<li>Columnas: ${data.quality_before.total_columns}</li>`;
+                        html += `<li>Duplicados: ${data.quality_before.duplicate_rows}</li>`;
+                        html += `<li>% Nulos: ${data.quality_before.missing_data_percentage.toFixed(2)}%</li>`;
+                        html += '</ul>';
+                        html += '<b>Después de limpiar:</b><ul>';
+                        html += `<li>Filas: ${data.quality_after.total_rows}</li>`;
+                        html += `<li>Columnas: ${data.quality_after.total_columns}</li>`;
+                        html += `<li>Duplicados: ${data.quality_after.duplicate_rows}</li>`;
+                        html += `<li>% Nulos: ${data.quality_after.missing_data_percentage.toFixed(2)}%</li>`;
+                        html += '</ul>';
+                        // Diferencias de columnas
+                        const colsBefore = Object.keys(data.quality_before.data_types);
+                        const colsAfter = Object.keys(data.quality_after.data_types);
+                        const addedCols = colsAfter.filter(c => !colsBefore.includes(c));
+                        const removedCols = colsBefore.filter(c => !colsAfter.includes(c));
+                        if (addedCols.length > 0) {
+                          html += `<b>Columnas añadidas:</b> ${addedCols.join(', ')}<br>`;
+                        }
+                        if (removedCols.length > 0) {
+                          html += `<b>Columnas eliminadas:</b> ${removedCols.join(', ')}<br>`;
+                        }
+                        // Tipos de datos principales
+                        html += `<b>Tipos de datos antes de limpiar:</b> ${Object.values(data.quality_before.data_types).join(', ')}<br>`;
+                        html += `<b>Tipos de datos después de limpiar:</b> ${Object.values(data.quality_after.data_types).join(', ')}<br>`;
+                        // Top columnas con nulos
+                        if (data.top_nulls_before && Object.keys(data.top_nulls_before).length > 0) {
+                          html += '<b>Top columnas con nulos antes de limpiar:</b><ul>';
+                          for (const [col, val] of Object.entries(data.top_nulls_before)) {
+                            html += `<li>${col}: ${val}</li>`;
+                          }
+                          html += '</ul>';
+                        }
+                        if (data.top_nulls_after && Object.keys(data.top_nulls_after).length > 0) {
+                          html += '<b>Top columnas con nulos después de limpiar:</b><ul>';
+                          for (const [col, val] of Object.entries(data.top_nulls_after)) {
+                            html += `<li>${col}: ${val}</li>`;
+                          }
+                          html += '</ul>';
+                        }
+                        preprocessorSummary.innerHTML = html;
+                        preprocessorSummary.style.display = 'block';
+                    } else {
+                        preprocessorStatusContainer.className = 'alert alert-danger';
+                        preprocessorStatusContainer.innerHTML = '<i class="fas fa-times-circle"></i> Error: ' + (data.message || 'No se pudo procesar los datos.');
+                    }
+                } catch (error) {
+                    preprocessorStatusContainer.className = 'alert alert-danger';
+                    preprocessorStatusContainer.innerHTML = '<i class="fas fa-times-circle"></i> Error de conexión o procesamiento.';
+                }
+            });
         });
     </script>
 </body>

@@ -1,0 +1,6 @@
+Métrica,Valor,Descripción
+accuracy,0.6079,Porcentaje de predicciones correctas sobre el total de predicciones realizadas.
+recall,0.6079,Proporción de casos positivos correctamente identificados.
+precision,0.6170,Porcentaje de casos negativos correctamente identificados.
+f1_score,0.6002,Media armónica entre la precisión y el recall.
+roc_auc,0.6079,Capacidad del modelo para discriminar entre las clases.

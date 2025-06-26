@@ -1,4 +1,7 @@
 """
+Módulo Preprocesador – Herramienta de Control y Limpieza de Datos
+Este módulo es esencial para la preparación de los datos antes de ser enviados al modelo predictivo. La interfaz permite visualizar y gestionar los datos recogidos, ofreciendo una visión completa de su calidad y consistencia. Incluye funciones de validación de datos para detectar posibles errores o valores faltantes. Asimismo, muestra un resumen estadístico de las transformaciones aplicadas, tales como la normalización, la imputación de valores nulos y la conversión de variables categóricas en formatos procesables por los modelos. Esta herramienta está diseñada para técnicos en ciencia de datos que se encargan de garantizar la calidad de los datos.
+
 Agente 2: Preprocesamiento de Datos
 Responsable de limpiar, transformar y preparar los datos para el modelado
 Fase 3: Preparación de los Datos

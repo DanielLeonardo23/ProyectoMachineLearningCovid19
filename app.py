@@ -328,6 +328,49 @@ def dashboard():
                            risk_prediction=last_risk_prediction,
                            model_metrics=last_model_metrics)
 
+@app.route('/preprocess_data', methods=['POST'])
+def preprocess_data():
+    """Ejecuta el preprocesamiento y control de calidad de los datos, devolviendo un resumen para la interfaz."""
+    try:
+        # Cargar datos originales
+        raw_data = data_extractor.load_data()
+        # Resumen de calidad antes de limpiar
+        quality_before = data_extractor.validate_data_quality()
+        stats_before = raw_data.describe(include='all').fillna('').to_dict()
+        # Limpiar datos
+        cleaned_data = data_preprocessor.clean_data(raw_data)
+        # Resumen de calidad después de limpiar
+        quality_after = {
+            'total_rows': int(len(cleaned_data)),
+            'total_columns': int(len(cleaned_data.columns)),
+            'missing_data_percentage': float((cleaned_data.isnull().sum().sum() / (len(cleaned_data) * len(cleaned_data.columns))) * 100),
+            'duplicate_rows': int(cleaned_data.duplicated().sum()),
+            'data_types': {col: str(cleaned_data[col].dtype) for col in cleaned_data.columns},
+        }
+        stats_after = cleaned_data.describe(include='all').fillna('').to_dict()
+        # Preview de datos
+        preview_before = raw_data.head(5).fillna('').to_dict(orient='records')
+        preview_after = cleaned_data.head(5).fillna('').to_dict(orient='records')
+        # Top 3 columnas con más nulos antes y después
+        nulls_before = raw_data.isnull().sum().sort_values(ascending=False)
+        nulls_after = cleaned_data.isnull().sum().sort_values(ascending=False)
+        top_nulls_before = nulls_before[nulls_before > 0].head(3).to_dict()
+        top_nulls_after = nulls_after[nulls_after > 0].head(3).to_dict()
+        return jsonify({
+            'success': True,
+            'quality_before': quality_before,
+            'quality_after': quality_after,
+            'stats_before': stats_before,
+            'stats_after': stats_after,
+            'preview_before': preview_before,
+            'preview_after': preview_after,
+            'top_nulls_before': top_nulls_before,
+            'top_nulls_after': top_nulls_after
+        })
+    except Exception as e:
+        logger.error(f"Error en el preprocesamiento: {e}")
+        return jsonify({'success': False, 'message': str(e)})
+
 if __name__ == '__main__':
     # Intentar cargar modelo pre-entrenado al iniciar
     try:
